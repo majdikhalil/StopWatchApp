@@ -5,63 +5,65 @@ namespace StopWatchApp
 {
     public class StopWatch
     {
-        private DateTime StartTime { get; set; }
-        private DateTime StopTime { get; set; }
-        private bool StopWatchStarted { get; set; }
-        private readonly List<TimeSpan> _durationIntervals;
 
-        public TimeSpan Duration
-        {
-            get
-            {
-                var totalDuration = TimeSpan.Zero;
-                foreach (TimeSpan timeSpan in _durationIntervals)
-                {
-                    totalDuration += timeSpan;
-                }
-                return totalDuration;
-            }
-        }
+        //Properties 
+        DateTime _startTime;
 
-        public StopWatch()
-        {
-            StopWatchStarted = false;
-            _durationIntervals = new List<TimeSpan>();
-        }
+        DateTime _stopTime;
+
+        public bool _isRunning;
 
         public void Start()
         {
-            if (!StopWatchStarted)
+            if (_isRunning)
             {
-                StartTime = DateTime.Now;
-                Console.WriteLine("Start Pressed");
-                StopWatchStarted = true;
+                throw new InvalidOperationException("Cannot start: Already Running");
+            }
 
-            }
-            else
-            {
-                throw new InvalidOperationException(nameof(StartTime));
-            }
+            _startTime = DateTime.Now;
+            _isRunning = true;
 
         }
+
+        //stop method
 
         public void Stop()
         {
-            Console.WriteLine("Stop Pressed");
-            if (StopWatchStarted)
+            var currentYear = DateTime.Now.Year;
+            if (!_isRunning || _startTime.Year < currentYear)
             {
-                StopTime = DateTime.Now;
-                StopWatchStarted = false;
-                AddDurationToList();
+                throw new InvalidOperationException("Can't Stop: Not running");
             }
 
 
+            _stopTime = DateTime.Now;
+            _isRunning = false;
+
         }
 
-        private void AddDurationToList()
+        public TimeSpan Duration()
         {
-            _durationIntervals.Add((StopTime - StartTime));
+
+            if (_isRunning && _startTime != null)
+            {
+                _stopTime = DateTime.Now;
+                _isRunning = false;
+                return _stopTime - _startTime;
+            }
+            else
+            {
+                return _stopTime - _startTime;
+            }
+
         }
+
+        public void DisplayDuration()
+        {
+            var timeLapse = Duration();
+            Console.WriteLine("Total Time: {0}", timeLapse);
+        }
+
+
 
     }
 }
